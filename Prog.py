@@ -9,9 +9,10 @@ users = [
 ]
 
 movies = [
-    {"title": "Интерстеллар", "genre": "Sci-Fi", "rating": 8.6, "release_date": "2014-11-07"},
-    {"title": "Начало", "genre": "Thriller", "rating": 8.8, "release_date": "2010-07-16"}
+    {"title": "Интерстеллар", "genre": "Sci-Fi", "rating": 8.6, "release_date": "2014-11-07", "reviews": []},
+    {"title": "Начало", "genre": "Thriller", "rating": 8.8, "release_date": "2010-07-16", "reviews": []}
 ]
+
 
 # Функции для пользователей
 
@@ -20,7 +21,7 @@ def authenticate():
     username = input("Логин: ").strip()
     if username.lower() == "exit":
         print("Выход из программы.")
-        exit()  # Завершаем программу, если введен "exit"
+        exit()  
 
     password = input("Пароль: ").strip()
 
@@ -119,6 +120,56 @@ def watch_movie(user):
         print(f"Фильм с названием '{movie_title}' не найден.")
 
 
+def add_review(user):
+    print("\nВведите название фильма, о котором хотите оставить отзыв:")
+    movie_title = input().strip()
+
+    movie = next((movie for movie in movies if movie['title'].lower() == movie_title.lower()), None)
+
+    if movie:
+        review = input("Введите ваш отзыв: ").strip()
+        movie["reviews"].append({"user": user["username"], "review": review})
+        print(f"Отзыв о фильме '{movie_title}' успешно добавлен.")
+    else:
+        print(f"Фильм с названием '{movie_title}' не найден.")
+
+def rate_movie(user):
+    print("\nВведите название фильма, который хотите оценить:")
+    movie_title = input().strip()
+
+    movie = next((movie for movie in movies if movie['title'].lower() == movie_title.lower()), None)
+
+    if movie:
+        try:
+            rating = float(input(f"Введите рейтинг для фильма '{movie_title}' (от 1 до 10): "))
+            if 1 <= rating <= 10:
+                movie['rating'] = (movie['rating'] + rating) / 2
+                print(f"Фильм '{movie_title}' оценен на {rating}.")
+            else:
+                print("Неверный рейтинг. Введите число от 1 до 10.")
+        except ValueError:
+            print("Ошибка ввода. Введите число.")
+    else:
+        print(f"Фильм с названием '{movie_title}' не найден.")
+
+def view_reviews():
+    """Функция просмотра отзывов."""
+    print("\nВведите название фильма для просмотра отзывов:")
+    movie_title = input().strip()
+
+    movie = next((movie for movie in movies if movie['title'].lower() == movie_title.lower()), None)
+
+    if movie:
+        if movie["reviews"]:
+            print(f"\nОтзывы о фильме '{movie['title']}':")
+            for i, review in enumerate(movie["reviews"], start=1):
+                print(f"{i}. {review['user']}: {review['review']}")
+        else:
+            print(f"Для фильма '{movie['title']}' пока нет отзывов.")
+    else:
+        print(f"Фильм с названием '{movie_title}' не найден.")
+
+
 # Функции для администратора
 
 def add_movie():
@@ -128,7 +179,7 @@ def add_movie():
         genre = input("Жанр: ").strip()
         rating = float(input("Рейтинг: ").strip())
         release_date = input("Дата выхода (YYYY-MM-DD): ").strip()
-        movies.append({"title": title, "genre": genre, "rating": rating, "release_date": release_date})
+        movies.append({"title": title, "genre": genre, "rating": rating, "release_date": release_date, 'reviews': []})
         print("Фильм добавлен.")
     except ValueError:
         print("Ошибка ввода. Проверьте данные.")
@@ -240,6 +291,8 @@ def view_user_history():
         else:
             print("  Нет истории.")
 
+
+
 # Функции с использованием map, filter, reduce, zip
 
 def capitalize_movie_titles():
@@ -281,7 +334,9 @@ def main():
                     print("4. Просмотреть фильмы")
                     print("5. Просмотреть статистику")
                     print("6. Просмотр действий пользователей")
-                    print("7. Выйти")
+                    print('7. Посмотреть отзывы')
+                    print("8. Выйти")
+                    print('9. Выйти из аккаунта')
                     
                     choice = input("Выберите действие: ").strip()
                     if choice == "1":
@@ -299,9 +354,13 @@ def main():
                         zip_movie_titles_with_indices()  # Пример использования zip
                     elif choice == "6":
                         view_user_history()
-                    elif choice == "7":
+                    elif choice == '7':
+                        view_reviews()
+                    elif choice == "8":
                         print("Выход из программы.")
-                        return  # Завершаем программу
+                        return  
+                    elif choice == '9':
+                        break
                     else:
                         print("Некорректный выбор.")
             elif user["role"] == "user":
@@ -309,10 +368,15 @@ def main():
                     print("\n1. Просмотреть фильмы")
                     print("2. Сортировать фильмы")
                     print("3. Фильтровать фильмы")
-                    print("4. Купить подписку")
-                    print("5. Просмотреть аккаунт")  # Добавлен пункт для просмотра аккаунта
-                    print("6. Просмотреть фильм")  # Добавлен пункт для просмотра фильма
-                    print("7. Выйти")
+                    print('4. Оценить фильм')
+                    print('5. Написать отзыв')
+                    print("6. Купить подписку")
+                    print("7. Просмотреть аккаунт")  
+                    print("8. Просмотреть фильм") 
+                    print('9. Посмотреть отзывы')
+                    print("10. Выйти")
+                    print ('11. Выйти из аккаунта')
+                    
                     
                     choice = input("Выберите действие: ").strip()
                     if choice == "1":
@@ -321,15 +385,23 @@ def main():
                         sort_movies()
                     elif choice == "3":
                         filter_movies()
-                    elif choice == "4":
-                        buy_subscription(user)
-                    elif choice == "5":
-                        view_account(user)  # Вызов функции для просмотра аккаунта
+                    elif choice == '4':
+                        rate_movie(user)
+                    elif choice == '5':
+                        add_review(user)
                     elif choice == "6":
-                        watch_movie(user)  # Вызов функции для просмотра фильма
+                        buy_subscription(user)
                     elif choice == "7":
+                        view_account(user)  
+                    elif choice == "8":
+                        watch_movie(user) 
+                    elif choice == '9':
+                        view_reviews() 
+                    elif choice == "10":
                         print("Выход из программы.")
-                        return  # Завершаем программу
+                        return  
+                    elif choice == '11':
+                        break
                     else:
                         print("Некорректный выбор.")
 
