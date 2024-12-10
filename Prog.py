@@ -92,6 +92,33 @@ def update_password(user):
     else:
         print("Неверный текущий пароль.")
 
+def view_account(user):
+    """Просмотр информации о аккаунте пользователя."""
+    print("\nИнформация о вашем аккаунте:")
+    print(f"Логин: {user['username']}")
+    print(f"Роль: {user['role']}")
+    print(f"Тип подписки: {user.get('subscription_type', 'Нет')}")
+    print(f"Дата создания аккаунта: {user['created_at']}")
+    print(f"История просмотров: {', '.join(user.get('history', [])) if user.get('history') else 'Нет истории'}")
+
+def watch_movie(user):
+    """Функция для просмотра фильма и добавления его в историю по названию."""
+    print("\nВведите название фильма для просмотра:")
+    movie_title = input().strip()
+
+    movie = next((movie for movie in movies if movie['title'].lower() == movie_title.lower()), None)
+
+    if movie:
+        # Если фильм найден, добавляем его в историю
+        if movie['title'] not in user['history']:
+            user['history'].append(movie['title'])
+            print(f"Вы успешно просмотрели фильм: {movie['title']}")
+        else:
+            print(f"Вы уже просмотрели фильм: {movie['title']}")
+    else:
+        print(f"Фильм с названием '{movie_title}' не найден.")
+
+
 # Функции для администратора
 
 def add_movie():
@@ -283,7 +310,9 @@ def main():
                     print("2. Сортировать фильмы")
                     print("3. Фильтровать фильмы")
                     print("4. Купить подписку")
-                    print("5. Выйти")
+                    print("5. Просмотреть аккаунт")  # Добавлен пункт для просмотра аккаунта
+                    print("6. Просмотреть фильм")  # Добавлен пункт для просмотра фильма
+                    print("7. Выйти")
                     
                     choice = input("Выберите действие: ").strip()
                     if choice == "1":
@@ -295,6 +324,10 @@ def main():
                     elif choice == "4":
                         buy_subscription(user)
                     elif choice == "5":
+                        view_account(user)  # Вызов функции для просмотра аккаунта
+                    elif choice == "6":
+                        watch_movie(user)  # Вызов функции для просмотра фильма
+                    elif choice == "7":
                         print("Выход из программы.")
                         return  # Завершаем программу
                     else:
