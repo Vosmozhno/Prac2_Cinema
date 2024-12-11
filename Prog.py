@@ -134,23 +134,31 @@ def add_review(user):
         print(f"Фильм с названием '{movie_title}' не найден.")
 
 def rate_movie(user):
-    print("\nВведите название фильма, который хотите оценить:")
-    movie_title = input().strip()
-
+    movie_title = input("\nВведите название фильма, который хотите оценить: ")
     movie = next((movie for movie in movies if movie['title'].lower() == movie_title.lower()), None)
+    
+    if not movie:
+        print(f"Фильм '{movie_title}' не найден.")
+        return
+    
+    try:
+        rating = float(input(f"Введите рейтинг для фильма '{movie['title']}' (от 1 до 10): "))
+        if not 1 <= rating <= 10:
+            raise ValueError("Рейтинг должен быть от 1 до 10.")
+    except ValueError as e:
+        print(e)
+        return
 
-    if movie:
-        try:
-            rating = float(input(f"Введите рейтинг для фильма '{movie_title}' (от 1 до 10): "))
-            if 1 <= rating <= 10:
-                movie['rating'] = (movie['rating'] + rating) / 2
-                print(f"Фильм '{movie_title}' оценен на {rating}.")
-            else:
-                print("Неверный рейтинг. Введите число от 1 до 10.")
-        except ValueError:
-            print("Ошибка ввода. Введите число.")
-    else:
-        print(f"Фильм с названием '{movie_title}' не найден.")
+   
+    
+    movie["rating_count"] = 1 
+
+    total_ratings = movie["rating"] * movie["rating_count"]
+    total_ratings += rating 
+    movie["rating_count"] += 1
+    movie["rating"] = total_ratings / movie["rating_count"]
+    
+    print(f"Вы поставили фильму '{movie['title']}' оценку {rating}.")
 
 def view_reviews():
     """Функция просмотра отзывов."""
